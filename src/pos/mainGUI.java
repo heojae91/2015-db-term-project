@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,11 +20,24 @@ import java.sql.ResultSet;
 import java.util.Date;
 
 
-public class mainGUI implements ActionListener{
+public class mainGUI implements ActionListener {
 	private JFrame frame = new JFrame(); // action listener 사용을 위함
 	private JPanel panel = new JPanel();
+	private String filePath;
+
+	// 메뉴바
+	
+	private JMenuBar mb = new JMenuBar();
+	private JMenu fileMenu = new JMenu("메뉴");
+	private JMenuItem loginItem = new JMenuItem("로그인");
+	private JMenuItem openItem = new JMenuItem("열기");
+	
+	// 파일 선택
+	private JFileChooser fileChooser = new JFileChooser();
 	
 	// 로그인 필드
+	private JFrame loginFrame = new JFrame();
+	private JPanel loginPanel = new JPanel();
 	private JLabel idLabel = new JLabel("아이디");
 	private JLabel pwdLabel = new JLabel("비밀번호");
 	private JTextField idInput = new JTextField();
@@ -68,10 +82,6 @@ public class mainGUI implements ActionListener{
 	private JTextField workerTextField = new JTextField();
 	private JTextField menuTextField = new JTextField();
 	
-	// 아이디 비번
-	private String username;
-	private String password;
-	
 	// 연결
 	private static Connection dbTest;
 
@@ -81,6 +91,41 @@ public class mainGUI implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 	}
 	
+	public void createLoginMenu() {
+		loginPanel.setLayout(null);
+		
+		idLabel.setBounds(20,10,60,30);
+		pwdLabel.setBounds(20,50,60,30);
+		idInput.setBounds(100,10,80,30);
+		pwdInput.setBounds(100,50,80,30);
+		loginButton.setBounds(200,25,80,35);
+		
+		loginPanel.add(idLabel);
+		loginPanel.add(pwdLabel);
+		loginPanel.add(idInput);
+		loginPanel.add(pwdInput);
+		loginPanel.add(loginButton);
+		
+		loginFrame.add(panel);
+		
+		loginFrame.setTitle("Login");
+		loginFrame.setSize(320,130);
+		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		loginFrame.setVisible(true);
+		
+		loginButton.addActionListener(new LoginActionListener());
+	}
+	
+	public void createMenuBar() {
+		openItem.addActionListener(new OpenActionListener());
+		loginItem.addActionListener(new LoginActionListener());
+		
+		fileMenu.add(openItem);
+		fileMenu.add(loginItem);
+		
+		mb.add(fileMenu);
+		frame.setJMenuBar(mb);
+	}
 	
 	public void layout() {
 		frame.setVisible(false);
@@ -95,8 +140,8 @@ public class mainGUI implements ActionListener{
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("식당 주문관리");
-		frame.setSize(755, 1000);
-
+		frame.setSize(755, 1020);
+		createMenuBar();
 		frame.setVisible(true);
 	}
 	
@@ -121,6 +166,7 @@ public class mainGUI implements ActionListener{
         {
         	button[i] = new JButton(String.valueOf(i+1));
         	button[i].addActionListener(this);
+        	button[i].setBackground(Color.WHITE);
         	tablePanel.add(button[i]);
         }
         
@@ -258,5 +304,32 @@ public class mainGUI implements ActionListener{
 		
 		regPanel.add(tabbedPane);
 		frame.add(regPanel);
+	}
+	
+	class LoginActionListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	class OpenActionListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT Files", "txt");
+			fileChooser.setFileFilter(filter);
+			
+			int ret = fileChooser.showOpenDialog(null);
+			if (ret != JFileChooser.APPROVE_OPTION) {
+				JOptionPane.showMessageDialog(null, "파일이 선택되지 않았습니다.");
+				return;
+			}
+			
+			filePath = fileChooser.getSelectedFile().getPath();
+		}
 	}
 }

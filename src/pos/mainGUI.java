@@ -102,6 +102,7 @@ public class mainGUI implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
 	}
 	
 	public void createLoginMenu() {
@@ -148,6 +149,7 @@ public class mainGUI implements ActionListener {
 		firstButton.setText("회원등록");
 		secondButton.setText("취소");
 		
+		nameLabel.setText("이름");
 		secondPanel.add(nameLabel);
 		secondPanel.add(firstInput);
 		secondPanel.add(birthLabel);
@@ -165,8 +167,27 @@ public class mainGUI implements ActionListener {
 	
 	public void createRegMenu()
 	{
+		secondFrame = new JFrame();
+		secondPanel = new JPanel();
 		
+		firstButton.setText("등록");
+		secondButton.setText("취소");
+		
+		nameLabel.setText("메뉴이름");
+
+		secondPanel.add(nameLabel);
+		secondPanel.add(firstInput);
+		secondPanel.add(priceLabel);
+		secondPanel.add(secondInput);
+		
+		secondPanel.add(firstButton);
+		secondPanel.add(secondButton);
+		
+		secondFrame.add(secondPanel);
+		
+		secondFrame.setVisible(true);
 	}
+	
 	public void layout() {
 		frame.setVisible(false);
 		frame = new JFrame();
@@ -180,7 +201,7 @@ public class mainGUI implements ActionListener {
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("식당 주문관리");
-		frame.setSize(755, 1020);
+		frame.setSize(655, 820);
 		createMenuBar();
 		frame.setVisible(true);
 	}	
@@ -192,12 +213,12 @@ public class mainGUI implements ActionListener {
 		label.setHorizontalAlignment(JLabel.CENTER);
 		label.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		label.setLayout(null);
-		label.setBounds(10,10,720,70);
+		label.setBounds(10,10,620,60);
 		frame.add(label);
 	}
 	
 	private void currentTable() {
-		tablePanel.setBounds(10, 80, 355, 430);
+		tablePanel.setBounds(10, 80, 305, 330);
 		tablePanel.setLayout(new GridLayout(5,4,10,10));
 		tablePanel.setBorder(new TitledBorder("테이블"));
 		tablePanel.setFont(new Font("굴림", Font.BOLD, 15));
@@ -214,7 +235,7 @@ public class mainGUI implements ActionListener {
 	}
 	
 	private void orderTable() {
-		orderPanel.setBounds(375,80,355,430);
+		orderPanel.setBounds(325,80,305,330);
 		orderPanel.setBorder(new TitledBorder("주문내역"));
 		orderPanel.setFont(new Font("굴림", Font.BOLD, 15));
 		orderPanel.setLayout(null);
@@ -223,20 +244,20 @@ public class mainGUI implements ActionListener {
 		JLabel customerName = new JLabel("고객명");
 		JLabel tableName = new JLabel("테이블명");
 		
-		orderText.setBounds(10, 20, 200, 400);
-		customerName.setBounds(230, 40, 100, 20);
-		tableName.setBounds(230, 130, 100, 20);
+		orderText.setBounds(10, 20, 180, 300);
+		customerName.setBounds(200, 20, 100, 20);
+		tableName.setBounds(200, 70, 100, 20);
 		
-		customerNameInput.setBounds(230, 60, 100, 20);
-		tableNameInput.setBounds(230,150,100,20);
+		customerNameInput.setBounds(200, 40, 90, 20);
+		tableNameInput.setBounds(200,100,90,20);
 		
 		for (int i = 1; i <= 20; i++) {
 			tableNameInput.addItem(i);
 		}
 		
-		orderButton.setBounds(240,250,100,50);
-		cancelButton.setBounds(240,310,100,50);
-		payButton.setBounds(240,370,100,50);
+		orderButton.setBounds(200,150,90,50);
+		cancelButton.setBounds(200,210,90,50);
+		payButton.setBounds(200,270,90,50);
 		
 		customerNameInput.addActionListener(this);
 		tableNameInput.addActionListener(this);
@@ -258,7 +279,7 @@ public class mainGUI implements ActionListener {
 	}
 	
 	private void menuTable() {
-		menuPanel.setBounds(10,520,355,430);
+		menuPanel.setBounds(10,420,305,330);
 		menuPanel.setLayout(new GridLayout(10,2,10,10));
 		menuPanel.setBorder(new TitledBorder("메뉴"));
 		menuPanel.setFont(new Font("굴림", Font.BOLD, 15));
@@ -276,35 +297,35 @@ public class mainGUI implements ActionListener {
 	}
 	
 	private void regTable() {
-		regPanel.setBounds(375,520,355,430);
+		regPanel.setBounds(325,420,305,330);
 		regPanel.setBorder(new TitledBorder("등록/조회"));
 		regPanel.setFont(new Font("굴림", Font.BOLD, 15));
 		regPanel.setLayout(null);
 		
-		tabbedPane.setBounds(10,20,335,400);
+		tabbedPane.setBounds(10,20,285,300);
 		tabbedPane.addTab("고객", customerPane);
 		tabbedPane.addTab("매출", salesPane);
 		tabbedPane.addTab("직원", workerPane);
 		tabbedPane.addTab("메뉴", menuPane);
 		
-		customerTextField.setBounds(10,80,310,280);
-		salesTextField.setBounds(10,80,310,280);
-		menuTextField.setBounds(10,80,310,280);
-		workerTextField.setBounds(10,80,310,280);
+		customerTextField.setBounds(10,45,265,220);
+		salesTextField.setBounds(10,45,265,220);
+		menuTextField.setBounds(10,45,265,220);
+		workerTextField.setBounds(10,45,265,220);
 		
-		customerInput.setBounds(10,30,100,30);
-		customerSignUp.setBounds(130,30,90,30);
-		customerCheck.setBounds(227,30,90,30);
+		customerInput.setBounds(10,10,70,30);
+		customerSignUp.setBounds(88,10,90,30);
+		customerCheck.setBounds(183,10,90,30);
 		
-		salesComboBox.setBounds(10,30,100,30);
+		salesComboBox.setBounds(10,10,100,30);
 
-		workerInput.setBounds(10,30,100,30);
-		workerSignUp.setBounds(130,30,90,30);
-		workerCheck.setBounds(227,30,90,30);
+		workerInput.setBounds(10,10,70,30);
+		workerSignUp.setBounds(88,10,90,30);
+		workerCheck.setBounds(183,10,90,30);
 
-		menuInput.setBounds(10,30,100,30);
-		menuSignUp.setBounds(130,30,90,30);
-		menuCheck.setBounds(227,30,90,30);
+		menuInput.setBounds(10,10,70,30);
+		menuSignUp.setBounds(88,10,90,30);
+		menuCheck.setBounds(183,10,90,30);
 		
 		customerSignUp.addActionListener(this);
 		customerCheck.addActionListener(this);
@@ -352,13 +373,13 @@ public class mainGUI implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == loginItem)
 			{
-				loginFrame = new JFrame();
+				secondFrame = new JFrame();
 				createLoginMenu();
 			}
 			else if (e.getSource() == loginButton)
 			{
 				loginFlag = 1;
-				loginFrame.setVisible(false);
+				secondFrame.setVisible(false);
 			}
 		}
 		

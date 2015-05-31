@@ -2,6 +2,8 @@ package pos;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -31,7 +33,7 @@ public class dbcontroller implements ActionListener {
 	
 	// sqlÀ» °¡Áö°í ³î ³à¼®µé
 	private Connection dbControl;
-	private PreparedStatement stmt = dbControl.prepareStatement(null);
+	private PreparedStatement stmt;
 	private ResultSet rs;
 	
 	public dbcontroller() throws SQLException  {
@@ -61,10 +63,10 @@ public class dbcontroller implements ActionListener {
 		loginButton.addActionListener(this);
 		*/
 		
-		createTables();
+		readTextFile();
 	}
 
-	private int connectDB(){
+	private int connectDB() throws SQLException {
 		try {
 			// JDBC Driver Loading
 			Class.forName("oracle.jdbc.OracleDriver");
@@ -105,7 +107,8 @@ public class dbcontroller implements ActionListener {
 				+ "menuname	varchar(20)	not null,\n"
 				+ "price	integer	not null,\n"
 				+ "menunumber	integer not null,\n"
-				+ "primary key	(menuname, menunumber)\n"
+				+ "primary key	(menuname)\n"
+				+ "primary key	(menunumber)\n"
 				+ ");";
 		
 		String orderedSql = "create table ordered(\n"
@@ -123,8 +126,8 @@ public class dbcontroller implements ActionListener {
 		String dailyresultSql = "create table dailyresult(\n"
 				+ "day	date not null\n"
 				+ "revenue	integer not null\n"
-				+ "bestmenu	varchar(10) not null\n"
-				+ "worstmenu varchar(10) not null,\n"
+				+ "bestmenu	varchar(20) not null\n"
+				+ "worstmenu varchar(20) not null,\n"
 				+ "primary key (day),\n"
 				+ ");";
 		
@@ -151,20 +154,54 @@ public class dbcontroller implements ActionListener {
 	    }
 	}
 	
+	public void readTextFile()
+	{
+       System.out.println("Reading File from Java code");
+       //Name of the file
+       String fileName="C:/Users/Ashton Heo/workspace/2015-db-term-project/data.txt";
+       try{
+
+          //Create object of FileReader
+          FileReader inputFile = new FileReader(fileName);
+
+          //Instantiate the BufferedReader Class
+          BufferedReader bufferReader = new BufferedReader(inputFile);
+
+          //Variable to hold the one line data
+          String line;
+
+          // Read file line by line and print on the console
+          while ((line = bufferReader.readLine()) != null)   {
+            System.out.println(line);
+          }
+          //Close the buffer reader
+          bufferReader.close();
+       }catch(Exception e){
+          System.out.println("Error while reading file line by line:" + e.getMessage());                      
+       }
+
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		/*
 		if (e.getSource() == loginButton) {
 			username = idInput.getText();
 			password = new String(pwdInput.getPassword());
 			
-			int loginFlag = connectDB();
+			try {
+				loginFlag = connectDB();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			
 			if (loginFlag == 1) {
 				new mainGUI().layout();
 				frame.setVisible(false);
 			}
+			*/
 		}
-	}
 	
 	public boolean checkTableNames(String[] tableNames) throws SQLException
 	{
@@ -186,8 +223,8 @@ public class dbcontroller implements ActionListener {
 		return tableNameFlag;
 	}
 	
-	public static void main(String[] args) {
-		new dbcontroller();
+	public static void main(String[] args) throws SQLException {
+		new dbcontroller().readTextFile();;
 	}
 
 }

@@ -21,41 +21,22 @@ import java.util.Date;
 
 
 public class mainGUI implements ActionListener {
+	private subGUI sgui = new subGUI();
 	private JFrame frame = new JFrame(); // action listener 사용을 위함
 	private String filePath;
-	private int loginFlag = 1; // 스태프로 로그인 되어 있으면 1, 아니면 0 -> sql 파일 불러올때 사용
+	private int loginFlag = sgui.loginFlag; // 스태프로 로그인 되어 있으면 1, 아니면 0 -> sql 파일 불러올때 사용
+	private int currentTable; // 현재 입력된 테이블 정보
 
-	// 로그인과 등록화면을 책임지는 새로운 프래임과 패널
-	private JFrame secondFrame = new JFrame(); 
-	private JPanel secondPanel = new JPanel();
-	
-	// 등록화면을 위한 새로운 친구들
-	private JLabel nameLabel = new JLabel("이름넣는곳");
-	private JLabel birthLabel = new JLabel("생일(4자리)");
-	private JLabel contactLabel = new JLabel("연락처");
-	private JLabel priceLabel = new JLabel("가격");
-	private JTextField firstInput = new JTextField();
-	private JTextField secondInput = new JTextField();
-	private JTextField thirdInput = new JTextField();
-	private JComboBox<String> choiceRank = new JComboBox<String>();
-	private JButton firstButton = new JButton();
-	private JButton secondButton = new JButton();
 	
 	// 메뉴바
 	private JMenuBar mb = new JMenuBar();
 	private JMenu fileMenu = new JMenu("메뉴");
-	private JMenuItem loginItem = new JMenuItem("로그인");
 	private JMenuItem openItem = new JMenuItem("열기");
-	
+	private JMenuItem loginItem = new JMenuItem("로그인");
+
 	// 파일 선택
 	private JFileChooser fileChooser = new JFileChooser();
 	
-	// 로그인 필드
-	private JLabel idLabel = new JLabel("아이디");
-	private JLabel pwdLabel = new JLabel("비밀번호");
-	private JTextField idInput = new JTextField();
-	private JPasswordField pwdInput = new JPasswordField();
-	private JButton loginButton = new JButton("로그인");
 	
 	// 식당관리 필드
 	private JPanel tablePanel = new JPanel();
@@ -105,34 +86,11 @@ public class mainGUI implements ActionListener {
 		
 	}
 	
-	public void createLoginMenu() {
-		secondPanel = new JPanel();
-		secondPanel.setLayout(null);
-		
-		idLabel.setBounds(20,10,60,30);
-		pwdLabel.setBounds(20,50,60,30);
-		idInput.setBounds(100,10,80,30);
-		pwdInput.setBounds(100,50,80,30);
-		loginButton.setBounds(200,25,80,35);
-		
-		secondPanel.add(idLabel);
-		secondPanel.add(pwdLabel);
-		secondPanel.add(idInput);
-		secondPanel.add(pwdInput);
-		secondPanel.add(loginButton);
-		
-		secondFrame.add(secondPanel);
-		
-		secondFrame.setTitle("Login");
-		secondFrame.setSize(320,130);
-		secondFrame.setVisible(true);
-		
-		loginButton.addActionListener(new LoginActionListener());
-	}
 	
 	public void createMenuBar() {
-		openItem.addActionListener(new OpenActionListener());
-		loginItem.addActionListener(new LoginActionListener());
+		openItem.addActionListener(new MenuBarActionListener());
+		loginItem.addActionListener(new MenuBarActionListener());
+		
 		
 		fileMenu.add(openItem);
 		fileMenu.add(loginItem);
@@ -141,52 +99,6 @@ public class mainGUI implements ActionListener {
 		frame.setJMenuBar(mb);
 	}
 	
-	public void createRegCustomer()
-	{
-		secondFrame = new JFrame();
-		secondPanel = new JPanel();
-		
-		firstButton.setText("회원등록");
-		secondButton.setText("취소");
-		
-		nameLabel.setText("이름");
-		secondPanel.add(nameLabel);
-		secondPanel.add(firstInput);
-		secondPanel.add(birthLabel);
-		secondPanel.add(secondInput);
-		secondPanel.add(contactLabel);
-		secondPanel.add(thirdInput);
-		
-		secondPanel.add(firstButton);
-		secondPanel.add(secondButton);
-		
-		secondFrame.add(secondPanel);
-		
-		secondFrame.setVisible(true);
-	}
-	
-	public void createRegMenu()
-	{
-		secondFrame = new JFrame();
-		secondPanel = new JPanel();
-		
-		firstButton.setText("등록");
-		secondButton.setText("취소");
-		
-		nameLabel.setText("메뉴이름");
-
-		secondPanel.add(nameLabel);
-		secondPanel.add(firstInput);
-		secondPanel.add(priceLabel);
-		secondPanel.add(secondInput);
-		
-		secondPanel.add(firstButton);
-		secondPanel.add(secondButton);
-		
-		secondFrame.add(secondPanel);
-		
-		secondFrame.setVisible(true);
-	}
 	
 	public void layout() {
 		frame.setVisible(false);
@@ -226,7 +138,7 @@ public class mainGUI implements ActionListener {
         for (int i = 0; i < button.length; i++)
         {
         	button[i] = new JButton(String.valueOf(i+1));
-        	button[i].addActionListener(this);
+        	button[i].addActionListener(new TableActionListener());
         	button[i].setBackground(Color.WHITE);
         	tablePanel.add(button[i]);
         }
@@ -259,11 +171,11 @@ public class mainGUI implements ActionListener {
 		cancelButton.setBounds(200,210,90,50);
 		payButton.setBounds(200,270,90,50);
 		
-		customerNameInput.addActionListener(this);
-		tableNameInput.addActionListener(this);
-		orderButton.addActionListener(this);
-		cancelButton.addActionListener(this);
-		payButton.addActionListener(this);
+		customerNameInput.addActionListener(new OrderActionListener());
+		tableNameInput.addActionListener(new OrderActionListener());
+		orderButton.addActionListener(new OrderActionListener());
+		cancelButton.addActionListener(new OrderActionListener());
+		payButton.addActionListener(new OrderActionListener());
 		
 		orderPanel.add(orderText);
 		orderPanel.add(customerName);
@@ -327,19 +239,19 @@ public class mainGUI implements ActionListener {
 		menuSignUp.setBounds(88,10,90,30);
 		menuCheck.setBounds(183,10,90,30);
 		
-		customerSignUp.addActionListener(this);
-		customerCheck.addActionListener(this);
-		customerInput.addActionListener(this);
+		customerSignUp.addActionListener(new RegTableActionListener());
+		customerCheck.addActionListener(new RegTableActionListener());
+		customerInput.addActionListener(new RegTableActionListener());
 		
-		salesComboBox.addActionListener(this);
+		salesComboBox.addActionListener(new RegTableActionListener());
 		
-		workerSignUp.addActionListener(this);
-		workerCheck.addActionListener(this);
-		workerInput.addActionListener(this);
+		workerSignUp.addActionListener(new RegTableActionListener());
+		workerCheck.addActionListener(new RegTableActionListener());
+		workerInput.addActionListener(new RegTableActionListener());
 		
-		menuSignUp.addActionListener(this);
-		menuCheck.addActionListener(this);
-		menuInput.addActionListener(this);
+		menuSignUp.addActionListener(new RegTableActionListener());
+		menuCheck.addActionListener(new RegTableActionListener());
+		menuInput.addActionListener(new RegTableActionListener());
 
 		customerPane.add(customerSignUp);
 		customerPane.add(customerCheck);
@@ -367,28 +279,36 @@ public class mainGUI implements ActionListener {
 		frame.add(regPanel);
 	}
 	
-	class LoginActionListener implements ActionListener {
+	class TableActionListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			for (int i = 0; i < 20; i++) {
+				button[i].setBackground(Color.WHITE);
+			}
+
+			for (int i = 0; i < 20; i++)
+			{
+				if (e.getSource() == button[i])
+				{
+					currentTable = i+1;
+					button[i].setBackground(Color.RED);
+				}
+			}
+		}
+	}
+	
+	
+	class MenuBarActionListener implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == loginItem)
 			{
-				secondFrame = new JFrame();
-				createLoginMenu();
+				sgui.createLoginMenu();
+				return;
 			}
-			else if (e.getSource() == loginButton)
-			{
-				loginFlag = 1;
-				secondFrame.setVisible(false);
-			}
-		}
-		
-	}
-	
-	class OpenActionListener implements ActionListener {
-
-		@Override
-		public void actionPerformed(ActionEvent arg0) {
+			
 			if (loginFlag == 0) {
 				JOptionPane.showMessageDialog(null, "로그인 되지 않았습니다");
 			}
@@ -404,6 +324,63 @@ public class mainGUI implements ActionListener {
 					return;
 				}
 				filePath = fileChooser.getSelectedFile().getPath();
+			}
+		}
+	}
+	
+	class OrderActionListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{	
+			if (e.getSource() == orderButton)
+			{
+				tableNameInput.getSelectedItem().toString();
+
+			}
+			else if (e.getSource() == cancelButton)
+			{
+				
+			}
+			else if (e.getSource() == payButton)
+			{
+				tableNameInput.getSelectedItem().toString();
+
+			}
+		}
+	}
+	
+	class RegTableActionListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			if (e.getSource() == customerSignUp)
+			{
+				sgui.createRegCustomer();
+			}
+			else if (e.getSource() == customerCheck)
+			{
+				
+			}
+			else if (e.getSource() == salesComboBox)
+			{
+				
+			}
+			else if (e.getSource() == workerSignUp)
+			{
+				sgui.createRegStaff();
+			}
+			else if (e.getSource() == workerCheck)
+			{
+				
+			}
+			else if (e.getSource() == menuSignUp)
+			{
+				sgui.createRegMenu();
+				
+			}
+			else if (e.getSource() == menuCheck)
+			{
+				
 			}
 		}
 	}

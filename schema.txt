@@ -1,0 +1,6 @@
+schema
+1. customer = (customername, birthday, customernumber, grade, purchases)
+2. staff = (staffname, staffnumber, rank, sales)
+3. menu = (menuname, price, menunumber)
+4. order = (ordernumber, menuname, tablenumber, staffname, customername)
+5. dailyresult = (day, revenue, bestmenu, worstmenu)

@@ -29,9 +29,13 @@ public class dbcontroller implements ActionListener {
 	private JPanel panel = new JPanel();
 	private JFrame frame = new JFrame();
 	
+	// sql을 가지고 놀 녀석들
 	private Connection dbControl;
+	private PreparedStatement stmt = dbControl.prepareStatement(null);
+	private ResultSet rs;
 	
-	public dbcontroller()  {
+	public dbcontroller() throws SQLException  {
+		/*
 		panel.setLayout(null);
 		
 		idLabel.setBounds(20,10,60,30);
@@ -43,8 +47,9 @@ public class dbcontroller implements ActionListener {
 		panel.add(idLabel);
 		panel.add(pwdLabel);
 		panel.add(idInput);
-		panel.add(pwdInput);
 		panel.add(loginButton);
+		panel.add(pwdInput);
+
 		
 		frame.add(panel);
 		
@@ -54,6 +59,9 @@ public class dbcontroller implements ActionListener {
 		frame.setVisible(true);
 		
 		loginButton.addActionListener(this);
+		*/
+		
+		createTables();
 	}
 
 	private int connectDB(){
@@ -77,73 +85,72 @@ public class dbcontroller implements ActionListener {
 	
 	private void createTables() throws SQLException{
 		String customerSql = "create table customer (\n"
-				+ "customername	varchar(10)	not null\n"
-				+ "birthday	integer not null check(birthday<=1231 or birthday=9999)\n"
-				+ "customernumber	integer not null check(customernumber<10000)\n"
-				+ "customergrade	varchar(10) not null\n"
-				+ "primary key	customername\n"
+				+ "customername	varchar(10)	not null,\n"
+				+ "birthday	integer not null check(birthday<=1231 or birthday=9999),\n"
+				+ "customernumber	integer not null check(customernumber<10000),\n"
+				+ "grade	varchar(10) not null,\n"
+				+ "purchases	integer not null,\n"
+				+ "primary key	(customername),\n"
 				+ ");";
+		
 		String staffSql = "create table staff(\n"
-				+ "staffname	varchar(10)	not null\n"
-				+ "staffnumber	integer	not null\n"
-				+ "staffgrade	varchar(10)	not null\n"
-				+ "primary key	staffname\n"
+				+ "staffname	varchar(10)	not null,\n"
+				+ "staffnumber	integer	not null,\n"
+				+ "rank	varchar(10)	not null,\n"
+				+ "sales	integer not null,\n"
+				+ "primary key	(staffname)\n"
 				+ ");";
+		
 		String menuSql = "create table menu(\n"
-				+ "menuname	varchar(20)	not null\n"
-				+ "price	integer	not null\n"
-				+ "primary key	menuname\n"
+				+ "menuname	varchar(20)	not null,\n"
+				+ "price	integer	not null,\n"
+				+ "menunumber	integer not null,\n"
+				+ "primary key	(menuname, menunumber)\n"
 				+ ");";
 		
+		String orderedSql = "create table ordered(\n"
+				+ "ordernumber	integer not null,\n"
+				+ "menuname	varchar(20) not null,\n"
+				+ "tablenumber	integer not null,\n"
+				+ "staffname	integer not null,\n"
+				+ "customername	varchar(10) not null,\n"
+				+ "primary key(ordernumber, tablenumber),\n"
+				+ "foreign key(menuname) references menu,\n"
+				+ "foreign key(staffname) references staff,\n"
+				+ "foreign key(customername) references customer,\n"
+				+ ");";
+		
+		String dailyresultSql = "create table dailyresult(\n"
+				+ "day	date not null\n"
+				+ "revenue	integer not null\n"
+				+ "bestmenu	varchar(10) not null\n"
+				+ "worstmenu varchar(10) not null,\n"
+				+ "primary key (day),\n"
+				+ ");";
+		
+		String sql = "";	
+		try{
+			 String[] tablename = {"customer","staff","menu","ordered","dailyresult"};
+			 for(int i = 0; i<tablename.length; i++){		
+				 //db에 이미 table이 생성이 되어있는지를 check, 없다면 생성, 있다면 생성하지 않음
+				 if(checkTableExist(tablename[i]) == false){
+					 System.out.println(tablename[i]);
+					 sql = query[i];
+					 stmt = DBconnection.prepareStatement(sql);
+			    	 rs=stmt.executeQuery();	         
+			         DBconnection.commit();
+					}			
+			 }         
+	    }
+	    catch(SQLException e){	    		
+	    		JOptionPane.showMessageDialog(null, e);	 
+		    	DBconnection.rollback();	    	
+	    }finally{
+	    	 stmt.close();
+		     rs.close();
+	    }
 	}
-
 	
-	private void showTable() throws SQLException {
-		String specification = "";
-		
-		String sqlStr = "select count(column_name) num from cols where table_name = '"
-				+ ((String) check_box.getSelectedItem()).toUpperCase() + "'";
-		PreparedStatement stmt = dbTest.prepareStatement(sqlStr);
-		ResultSet rs = stmt.executeQuery();
-		
-		rs.next();
-		int number = rs.getInt("num");
-		String[] tables = new String[number];
-		
-		sqlStr = "select column_name from cols where table_name = '"
-				+ ((String) check_box.getSelectedItem()).toUpperCase() + "'";
-		stmt = dbTest.prepareStatement(sqlStr);
-		rs = stmt.executeQuery();
-		
-		for (number = 0; rs.next(); number ++) {
-			tables[number] = rs.getString("column_name");
-			specification += tables[number] + '\t';
-		}
-		
-		for (specification += "\n"; number > 0; number--) {
-			specification += "----------------------";
-		}
-		specification += "\n";
-		
-		sqlStr = "select * from " + (String) check_box.getSelectedItem();
-		stmt = dbTest.prepareStatement(sqlStr);
-		rs = stmt.executeQuery();
-		
-		for (number = 0; rs.next(); number++) {
-			for (int i = 0; i < tables.length; i++) {
-				specification += rs.getString(tables[i]) + '\t';
-			}
-			specification += "\n";
-		}
-		
-		check_area.setText(specification);
-		
-		rs.close();
-		stmt.close();
-	}
-
-
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == loginButton) {
@@ -153,9 +160,30 @@ public class dbcontroller implements ActionListener {
 			int loginFlag = connectDB();
 			
 			if (loginFlag == 1) {
-				new mainGUI().layout();;
+				new mainGUI().layout();
+				frame.setVisible(false);
 			}
 		}
+	}
+	
+	public boolean checkTableNames(String[] tableNames) throws SQLException
+	{
+		boolean tableNameFlag = false;
+		String sqlTableName = "select table_name from user_tables;";
+		stmt = dbControl.prepareStatement(sqlTableName);
+		rs = stmt.executeQuery();
+		
+		while (rs.next())
+		{
+			for (int i = 0; i < tableNames.length; i++)
+			{
+				if (rs.getString("table_name").equals(tableNames[i]))
+				{
+					tableNameFlag = true;
+				}
+			}
+		}
+		return tableNameFlag;
 	}
 	
 	public static void main(String[] args) {

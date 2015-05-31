@@ -1,0 +1,10 @@
+create table ordered(
+	ordernumber	integer not null,
+	menuname	varchar(20) not null,
+	tablenumber	integer not null,
+	staffname	integer not null,
+	customername	varchar(10) not null,
+	flag	integer not null check (flag = 0 or flag = 1),
+	primary key(ordernumber),
+	foreign key(menuname) references menu,
+	foreign key(staffname) references staff)

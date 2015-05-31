@@ -62,17 +62,18 @@ public class dbcontroller implements ActionListener {
 		
 		loginButton.addActionListener(this);
 		*/
-		
-		readTextFile();
 	}
 
 	private int connectDB() throws SQLException {
+		username = "system";
+		password = "system";
 		try {
 			// JDBC Driver Loading
 			Class.forName("oracle.jdbc.OracleDriver");
 			dbControl = DriverManager.getConnection("jdbc:oracle:thin:"+
 		"@localhost:1521:XE", username, password);
-			JOptionPane.showMessageDialog(frame, "로그인 되었습니다!");
+			//JOptionPane.showMessageDialog(frame, "로그인 되었습니다!");
+			createTables();
 			return 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -92,8 +93,7 @@ public class dbcontroller implements ActionListener {
 				+ "customernumber	integer not null check(customernumber<10000),\n"
 				+ "grade	varchar(10) not null,\n"
 				+ "purchases	integer not null,\n"
-				+ "primary key	(customername),\n"
-				+ ");";
+				+ "primary key	(customername))";
 		
 		String staffSql = "create table staff(\n"
 				+ "staffname	varchar(10)	not null,\n"
@@ -101,87 +101,58 @@ public class dbcontroller implements ActionListener {
 				+ "rank	varchar(10)	not null,\n"
 				+ "sales	integer not null,\n"
 				+ "primary key	(staffname)\n"
-				+ ");";
+				+ ")";
 		
 		String menuSql = "create table menu(\n"
 				+ "menuname	varchar(20)	not null,\n"
 				+ "price	integer	not null,\n"
 				+ "menunumber	integer not null,\n"
 				+ "primary key	(menuname)\n"
-				+ "primary key	(menunumber)\n"
-				+ ");";
+				+ ")";
 		
 		String orderedSql = "create table ordered(\n"
 				+ "ordernumber	integer not null,\n"
 				+ "menuname	varchar(20) not null,\n"
 				+ "tablenumber	integer not null,\n"
-				+ "staffname	integer not null,\n"
+				+ "staffname	varchar(10) not null,\n"
 				+ "customername	varchar(10) not null,\n"
-				+ "primary key(ordernumber, tablenumber),\n"
+				+ "flag	integer not null check (flag = 0 or flag = 1),"
+				+ "primary key(ordernumber),\n"
 				+ "foreign key(menuname) references menu,\n"
-				+ "foreign key(staffname) references staff,\n"
-				+ "foreign key(customername) references customer,\n"
-				+ ");";
+				+ "foreign key(staffname) references staff\n"
+				+ ")";
 		
 		String dailyresultSql = "create table dailyresult(\n"
-				+ "day	date not null\n"
-				+ "revenue	integer not null\n"
-				+ "bestmenu	varchar(20) not null\n"
+				+ "day	date not null,\n"
+				+ "revenue	integer not null,\n"
+				+ "bestmenu	varchar(20) not null,\n"
 				+ "worstmenu varchar(20) not null,\n"
-				+ "primary key (day),\n"
-				+ ");";
-		
-		String sql = "";	
-		try{
-			 String[] tablename = {"customer","staff","menu","ordered","dailyresult"};
-			 for(int i = 0; i<tablename.length; i++){		
-				 //db에 이미 table이 생성이 되어있는지를 check, 없다면 생성, 있다면 생성하지 않음
-				 if(checkTableExist(tablename[i]) == false){
-					 System.out.println(tablename[i]);
-					 sql = query[i];
-					 stmt = DBconnection.prepareStatement(sql);
-			    	 rs=stmt.executeQuery();	         
-			         DBconnection.commit();
-					}			
-			 }         
-	    }
-	    catch(SQLException e){	    		
-	    		JOptionPane.showMessageDialog(null, e);	 
-		    	DBconnection.rollback();	    	
-	    }finally{
-	    	 stmt.close();
-		     rs.close();
-	    }
+				+ "primary key (day)\n"
+				+ ")";
+		try {
+			String[] tablename = { "customer", "staff", "menu", "ordered",
+					"dailyresult" };
+			String[] sqlNames = {customerSql, staffSql, menuSql, orderedSql, dailyresultSql};
+			for (int i = 0; i < tablename.length; i++) {
+				// db에 이미 table이 생성이 되어있는지를 check, 없다면 생성, 있다면 생성하지 않음
+				if (checkTableNames(tablename[i]) == false) {
+					System.out.println(tablename[i]);
+					System.out.println(sqlNames[i]);
+					stmt = dbControl.prepareStatement(sqlNames[i]);
+					rs = stmt.executeQuery();
+
+					dbControl.commit();
+				}
+			}
+		} catch (SQLException e) {
+			e.getStackTrace();
+			dbControl.rollback();
+		} finally {
+			stmt.close();
+			rs.close();
+		}
 	}
 	
-	public void readTextFile()
-	{
-       System.out.println("Reading File from Java code");
-       //Name of the file
-       String fileName="C:/Users/Ashton Heo/workspace/2015-db-term-project/data.txt";
-       try{
-
-          //Create object of FileReader
-          FileReader inputFile = new FileReader(fileName);
-
-          //Instantiate the BufferedReader Class
-          BufferedReader bufferReader = new BufferedReader(inputFile);
-
-          //Variable to hold the one line data
-          String line;
-
-          // Read file line by line and print on the console
-          while ((line = bufferReader.readLine()) != null)   {
-            System.out.println(line);
-          }
-          //Close the buffer reader
-          bufferReader.close();
-       }catch(Exception e){
-          System.out.println("Error while reading file line by line:" + e.getMessage());                      
-       }
-
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		/*
@@ -203,28 +174,101 @@ public class dbcontroller implements ActionListener {
 			*/
 		}
 	
-	public boolean checkTableNames(String[] tableNames) throws SQLException
+	public boolean checkTableNames(String tableNames) throws SQLException
 	{
 		boolean tableNameFlag = false;
-		String sqlTableName = "select table_name from user_tables;";
+		String sqlTableName = "select table_name from user_tables";
 		stmt = dbControl.prepareStatement(sqlTableName);
 		rs = stmt.executeQuery();
-		
+
 		while (rs.next())
 		{
-			for (int i = 0; i < tableNames.length; i++)
-			{
-				if (rs.getString("table_name").equals(tableNames[i]))
-				{
-					tableNameFlag = true;
-				}
-			}
+			if (rs.getString("table_name").toUpperCase().equals(tableNames.toUpperCase()))
+				tableNameFlag = true;
 		}
 		return tableNameFlag;
 	}
 	
+	public void readTextFile() {
+		System.out.println("Reading File from Java code");
+		// Name of the file
+		String fileName = "C:/Users/Ashton Heo/workspace/2015-db-term-project/data.txt";
+		String[] splittedString = new String[0];
+		
+		try {
+			
+			// Create object of FileReader
+			FileReader inputFile = new FileReader(fileName);
+
+			// Instantiate the BufferedReader Class
+			BufferedReader bufferReader = new BufferedReader(inputFile);
+
+			// Variable to hold the one line data
+			String line;
+
+			// Read file line by line and print on the console
+			while ((line = bufferReader.readLine()) != null)
+			{
+				if (line.matches("\\d+"))
+					System.out.println(line + "숫자");
+				else {
+					splittedString = splitLine(line);
+				}
+				
+				int attributes = splittedString.length;
+				
+				String splittedSql;
+				
+				switch (attributes) {
+					case 4:
+						//customer
+						System.out.println("customer");
+						splittedSql = "insert into customer values\n"
+								+ "(" + splittedString[0] + ", " + splittedString[1] + ", " + splittedString[2] + ", " + splittedString[3] + ", 0)";
+						break;
+					case 3:
+						//staff
+						System.out.println("staff");
+						splittedSql = "insert into staff values\n"
+								+ "(" + splittedString[0] + ", " + splittedString[1] + ", " + splittedString[2] + ", 0)";
+						break;
+					case 2:
+						// menu
+						stmt = dbControl.prepareStatement("select count(menuname) from menu");
+						rs = stmt.executeQuery();
+						int menunumber = Integer.parseInt(rs.toString());
+						System.out.println("menu");
+						splittedSql = "insert into menu values\n"
+								+ "";
+						break;
+					case 0 :
+						System.out.println();
+						break;
+				}
+			}
+			// Close the buffer reader
+			bufferReader.close();
+		}
+		catch (Exception e) {
+			System.out.println("Error while reading file line by line:"
+				+ e.getMessage());
+		}
+
+	}
+	
+	public String[] splitLine(String line)
+	{
+		String[] splittedStrings;
+		splittedStrings = line.split("\t");
+		for (int i = 0; i < splittedStrings.length; i++)
+		{
+			System.out.println(splittedStrings[i]);
+		}
+		return splittedStrings;
+	}
+	
 	public static void main(String[] args) throws SQLException {
-		new dbcontroller().readTextFile();;
+		new dbcontroller().connectDB();
 	}
 
 }

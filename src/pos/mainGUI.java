@@ -189,7 +189,7 @@ public class mainGUI implements ActionListener {
 		frame.add(orderPanel);
 
 	}
-	
+	// repaint라는 함수를 쓰면 동적으로 받아올 수 있다!
 	private void menuTable() {
 		menuPanel.setBounds(10,420,305,330);
 		menuPanel.setLayout(new GridLayout(10,2,10,10));

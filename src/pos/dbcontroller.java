@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,6 +31,9 @@ public class dbcontroller implements ActionListener {
 	private JButton loginButton = new JButton("로그인");
 	private JPanel panel = new JPanel();
 	private JFrame frame = new JFrame();
+	
+	private int staffNumber;
+	private int customerNumber;
 	
 	// sql을 가지고 놀 녀석들
 	private Connection dbControl;
@@ -207,26 +211,30 @@ public class dbcontroller implements ActionListener {
 			String line;
 
 			// Read file line by line and print on the console
+			
+			int attributes = 0;
+
 			while ((line = bufferReader.readLine()) != null)
 			{
 				if (line.matches("\\d+"))
-					System.out.println(line + "숫자");
+				{
+					attributes += 1;
+				}
 				else {
 					splittedString = splitLine(line);
 				}
 				
-				int attributes = splittedString.length;
 				
 				String splittedSql;
 				
 				switch (attributes) {
-					case 4:
+					case 0:
 						//customer
 						System.out.println("customer");
 						splittedSql = "insert into customer values\n"
 								+ "(" + splittedString[0] + ", " + splittedString[1] + ", " + splittedString[2] + ", " + splittedString[3] + ", 0)";
 						break;
-					case 3:
+					case 1:
 						//staff
 						System.out.println("staff");
 						splittedSql = "insert into staff values\n"
@@ -240,9 +248,6 @@ public class dbcontroller implements ActionListener {
 						System.out.println("menu");
 						splittedSql = "insert into menu values\n"
 								+ "";
-						break;
-					case 0 :
-						System.out.println();
 						break;
 				}
 			}
@@ -265,6 +270,23 @@ public class dbcontroller implements ActionListener {
 			System.out.println(splittedStrings[i]);
 		}
 		return splittedStrings;
+	}
+	
+	public int makeRandom()
+	{
+		int random = (int)(Math.random() * 10000);
+		return random;
+	}
+	
+	public boolean findDuplicated(String type)
+	{
+		boolean flag = false;
+		String sql;
+		if (type.equals("customer"))
+		{
+			sql = "select customernumber from customer where "
+		}
+		return flag;
 	}
 	
 	public static void main(String[] args) throws SQLException {

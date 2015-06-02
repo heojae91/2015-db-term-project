@@ -5,13 +5,13 @@
 유재석	0814	4757	Bronze
 박명수	0827	5656	Normal
 비회원	9999	9999	Normal
-5
-김수현	1001	Staff
-하니	1002	Staff
-박수진	1030	Supervisor
-박보영	2004	Staff
-탕웨이	3594	Staff
-김연아	7555	Supervisor
+6
+김수현	Staff
+하니	Staff
+박수진	Supervisor
+박보영	Staff
+탕웨이	Staff
+김연아	Supervisor
 10
 안심스테이크	21000
 등심스테이크	25000

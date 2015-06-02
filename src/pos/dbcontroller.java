@@ -272,22 +272,95 @@ public class dbcontroller implements ActionListener {
 		return splittedStrings;
 	}
 	
-	public int makeRandom()
+	public int makeRandom(String type) throws SQLException
 	{
-		int random = (int)(Math.random() * 10000);
+		int random = (int)(Math.random() * 10);
+		while (findDuplicated(type, random))
+		{
+			random = (int)(Math.random() * 10);
+		}
 		return random;
 	}
 	
-	public boolean findDuplicated(String type)
+	public boolean findDuplicated(String type, int randNum) throws SQLException
 	{
 		boolean flag = false;
+		
 		String sql;
+		
 		if (type.equals("customer"))
 		{
-			sql = "select customernumber from customer where "
+			sql = "select customernumber from customer";
+			try
+			{
+				stmt = dbControl.prepareStatement(sql);
+				rs = stmt.executeQuery();
+				
+				while (rs.next())
+				{
+					if (rs.getInt("customernumber") == randNum)
+					{
+						flag = true;
+						break;
+					}
+				}
+			}
+			
+			catch (SQLException e)
+			{
+				return true;
+			}
+			catch (Exception ex)
+			{
+				return true;
+			}
+			finally
+			{
+				stmt.close();
+				rs.close();
+			}
 		}
+		
+		else if (type.equals("staff"))
+		{
+			sql = "select customernumber from staff";
+			try
+			{
+				stmt = dbControl.prepareStatement("select staffnumber from staff");
+				rs = stmt.executeQuery();
+				
+				while (rs.next())
+				{
+					if (rs.getInt("staffnumber") == randNum)
+					{
+						flag = true;
+						break;
+					}
+				}
+			}
+			
+			catch (SQLException e)
+			{
+				return true;
+			}
+			catch (Exception ex)
+			{
+				return true;
+			}
+			finally
+			{
+				stmt.close();
+				rs.close();
+			}
+		}
+		else {
+			return true; // staff 혹은 customer 이외의 값이 들어오는 경우
+		}
+
 		return flag;
 	}
+
+	
 	
 	public static void main(String[] args) throws SQLException {
 		new dbcontroller().connectDB();

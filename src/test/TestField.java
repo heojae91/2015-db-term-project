@@ -45,7 +45,6 @@ public class TestField {
 			dbControl = DriverManager.getConnection("jdbc:oracle:thin:"+
 		"@localhost:1521:XE", username, password);
 			//JOptionPane.showMessageDialog(frame, "로그인 되었습니다!");
-			createTables();
 			return 1;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -57,7 +56,7 @@ public class TestField {
 			return 0;
 		}
 	}
-	
+
 	private void createTables() throws SQLException{
 		String customerSql = "create table customer (\n"
 				+ "customername	varchar(10)	not null,\n"
@@ -139,6 +138,131 @@ public class TestField {
 		}
 		return tableNameFlag;
 	}
+
+	public int makeRandom(String type) throws SQLException
+	{
+		int random = (int)(Math.random() * 10);
+		while (findDuplicated(type, random))
+		{
+			random = (int)(Math.random() * 10);
+		}
+		return random;
+	}
+	
+	public boolean findDuplicated(String type, int randNum) throws SQLException
+	{
+		boolean flag = false;
+		
+		String sql;
+		
+		if (type.equals("customer"))
+		{
+			sql = "select customernumber from customer";
+			try
+			{
+				stmt = dbControl.prepareStatement(sql);
+				rs = stmt.executeQuery();
+				
+				while (rs.next())
+				{
+					if (rs.getInt("customernumber") == randNum)
+					{
+						flag = true;
+						break;
+					}
+				}
+			}
+			
+			catch (SQLException e)
+			{
+				return true;
+			}
+			catch (Exception ex)
+			{
+				return true;
+			}
+		}
+		else if (type.equals("staff"))
+		{
+			sql = "select customernumber from staff";
+			try
+			{
+				stmt = dbControl.prepareStatement("select staffnumber from staff");
+				rs = stmt.executeQuery();
+				
+				while (rs.next())
+				{
+					if (rs.getInt("staffnumber") == randNum)
+					{
+						flag = true;
+						break;
+					}
+				}
+			}
+			
+			catch (SQLException e)
+			{
+				return true;
+			}
+			catch (Exception ex)
+			{
+				return true;
+			}
+			finally
+			{
+				stmt.close();
+				rs.close();
+			}
+		}
+		else {
+			return true; // staff 혹은 customer 이외의 값이 들어오는 경우
+		}
+
+		return flag;
+	}
+	
+	public void insertStaff(String staffName, String rank) throws SQLException {
+		try
+		{
+			String sql = "insert into staff values(\n"
+				+ staffName + ", " + makeRandom("staff") + ", " + rank + ", 0)";
+			stmt = dbControl.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			
+			dbControl.commit();
+		} catch(SQLException e)
+		{
+			JOptionPane.showMessageDialog(null, "잘못된 입력입니다!");
+			dbControl.rollback();
+		}
+		finally
+		{
+			stmt.close();
+			rs.close();
+		}
+	}
+	
+	public void insertCustomer(String customerName, String rank) throws SQLException {
+		try
+		{
+			String sql = "insert into customer values(\n"
+				+ customerName + ", " + makeRandom("customer") + ", " + rank + ", 0)";
+			stmt = dbControl.prepareStatement(sql);
+			rs = stmt.executeQuery();
+			
+			dbControl.commit();
+		} catch(SQLException e)
+		{
+			JOptionPane.showMessageDialog(null, "잘못된 입력입니다!");
+			dbControl.rollback();
+		}
+		finally
+		{
+			stmt.close();
+			rs.close();
+		}
+	}
+
 
 	public static void main(String[] args) throws SQLException {
 		new TestField().connectDB();

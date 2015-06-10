@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -13,11 +16,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class subGUI {
 	private JFrame frame = new JFrame(); 
 	private JPanel panel = new JPanel();
-	private JPanel outerPanel = new JPanel();
 	
 	int loginFlag = 1;
-	
-
+	int staffLoginFlag;
 	// 등록화면을 위한 새로운 친구들
 	private JLabel nameLabel = new JLabel("이름넣는곳");
 	private JLabel birthLabel = new JLabel("생일(4자리)");
@@ -37,7 +38,18 @@ public class subGUI {
 	private JTextField idInput = new JTextField();
 	private JPasswordField pwdInput = new JPasswordField();
 	private JButton loginButton = new JButton("로그인");
+	
+	private dbcontroller dbc;
+	private PreparedStatement stmt;
+	private ResultSet rs;
+	private JButton[] menuButton;
+	
 
+	subGUI(dbcontroller dbc, JButton[] menuButton)
+	{
+		this.dbc = dbc;
+		this.menuButton = menuButton;
+	}
 	
 	public void createLoginMenu() {
 		frame = new JFrame();
@@ -46,6 +58,9 @@ public class subGUI {
 		pwdInput = new JPasswordField();
 		
 		panel.setLayout(null);
+		
+		idInput.setText("");
+		pwdInput.setText("");
 		
 		idLabel.setBounds(20,10,60,30);
 		pwdLabel.setBounds(20,50,60,30);
@@ -72,6 +87,10 @@ public class subGUI {
 		frame = new JFrame();
 		panel = new JPanel();
 		
+		firstInput.setText("");
+		secondInput.setText("");
+		thirdInput.setText("");
+
 		panel.setLayout(new GridLayout(4,2,5,5));
 		frame.setTitle("메뉴 등록");
 		frame.setSize(320,200);
@@ -107,6 +126,9 @@ public class subGUI {
 		frame = new JFrame();
 		panel = new JPanel();
 		
+		firstInput.setText("");
+		secondInput.setText("");
+
 		panel.setLayout(new GridLayout(3,2,5,5));
 		frame.setTitle("메뉴 등록");
 		frame.setSize(320,170);
@@ -141,6 +163,8 @@ public class subGUI {
 	{
 		frame = new JFrame();
 		panel = new JPanel();
+
+		firstInput.setText("");
 		
 		panel.setLayout(new GridLayout(3,2,5,5));
 		frame.setTitle("직원 등록");
@@ -182,8 +206,21 @@ public class subGUI {
 			if (e.getSource() == loginButton)
 			{
 				loginFlag = 1;
-
+				String id = idInput.getText();
+				char[] pwdArray = pwdInput.getPassword();
+				System.out.println(id);
+				String pwd = "";
+				for (int i = 0; i < pwdArray.length; i++)
+				{
+					pwd += pwdArray[i];
+				}
+				try {
+					staffLoginFlag = dbc.staffLogin(id, pwd);
+				} catch (SQLException e1) {
+					JOptionPane.showMessageDialog(new JFrame(), "로그인 정보가 잘못되었습니다!");
+				}
 				frame.setVisible(false);
+				
 			}
 		}
 		
@@ -195,7 +232,28 @@ public class subGUI {
 		{
 			if (e.getSource() == firstButton)
 			{
+				if (staffLoginFlag == 2)
+				{
+					String customerName = firstInput.getText();
+					int birthday = Integer.parseInt(secondInput.getText());
+					int contact = Integer.parseInt(thirdInput.getText());
+					
+					try {
+						dbc.regCustomer(customerName, birthday, contact);
+						JOptionPane.showMessageDialog(nameLabel, "입력 완료");
+					} catch (SQLException e1) {
+						JOptionPane.showMessageDialog(nameLabel, "잘못된 입력입니다!");
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Supervisor로 먼저 로그인 하세요");
+				}
+				firstInput.setText("");
+				secondInput.setText("");
 				
+				frame.setVisible(false);
+
 			}
 			else if (e.getSource() == secondButton)
 			{
@@ -211,7 +269,28 @@ public class subGUI {
 		{
 			if (e.getSource() == firstButton)
 			{
+				if (staffLoginFlag == 2)
+				{
+					String menuName = firstInput.getText();
+					int menuPrice = Integer.parseInt(secondInput.getText());
+					
+					dbc.regMenu(menuName, menuPrice);
+					JOptionPane.showMessageDialog(nameLabel, "입력 완료");
+					for (int i = 0; i < 20; i++)
+					{
+						menuButton[i].repaint();
+						System.out.println(1);
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Supervisor로 먼저 로그인 하세요");
+				}
+				firstInput.setText("");
+				secondInput.setText("");
 				
+				frame.setVisible(false);
+
 			}
 			else if (e.getSource() == secondButton)
 			{
@@ -227,6 +306,24 @@ public class subGUI {
 		{
 			if (e.getSource() == firstButton)
 			{
+				if (staffLoginFlag == 2)
+				{
+					String staffName = firstInput.getText();
+					String staffRank = (String)choiceRank.getSelectedItem();
+					
+					try {
+						dbc.regStaff(staffName, staffRank);
+					} catch (SQLException e1) {
+						JOptionPane.showMessageDialog(new JFrame(), "잘못된 입력입니다");
+						e1.printStackTrace();
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(new JFrame(), "Supervisor로 먼저 로그인 하세요");
+				}
+				firstInput.setText("");
+				frame.setVisible(false);
 				
 			}
 			else if (e.getSource() == secondButton)
